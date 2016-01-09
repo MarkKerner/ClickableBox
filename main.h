@@ -140,7 +140,7 @@ GLuint createShader(GLenum shaderType, const GLchar* shaderSrcString);
 
 GLuint createShaderProgram(GLuint vertexShader, GLuint fragmentShader);
 
-void createBufferObjects(GLuint boxVao, GLuint floorVao, GLuint shaderProgram);
+void createMainBufferObjects(GLuint boxVao, GLuint floorVao, GLuint mainShaderProgram);
 void createBufferObject(GLuint vao, const GLfloat* vertices, GLuint shaderProgram);
 
 typedef struct TransformationMatrix {
