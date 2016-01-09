@@ -109,7 +109,7 @@ const GLfloat floorVertices[] = {
 GLuint createShader(GLenum shaderType, const GLchar* shaderSrcString);
 GLuint createShaderProgram(GLuint vertexShader, GLuint fragmentShader);
 
-void createBufferObjects(GLuint boxVao, GLuint floorVao);
+void createBufferObjects(GLuint boxVao, GLuint floorVao, GLuint shaderProgram);
 void setupDefaultAttribPointers(GLuint shaderProgram, GLuint vao);
 
 typedef struct TransformationMatrix {

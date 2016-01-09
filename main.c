@@ -21,10 +21,8 @@ int main() {
 
     glGenVertexArrays(1, &floorVao);
     glGenVertexArrays(1, &boxVao);
-    createBufferObjects(boxVao, floorVao);
+    createBufferObjects(boxVao, floorVao, shaderProgram);
     //Setup uniform values
-    setupDefaultAttribPointers(shaderProgram, boxVao);
-    setupDefaultAttribPointers(shaderProgram, floorVao);
 
     //Create texture
     loadBoxTexture(shaderProgram);
@@ -144,7 +142,7 @@ GLuint createShaderProgram(GLuint vertexShader, GLuint fragmentShader) {
     return shaderProgram;
 }
 
-void createBufferObjects(GLuint boxVao, GLuint floorVao) {
+void createBufferObjects(GLuint boxVao, GLuint floorVao, GLuint shaderProgram) {
 
     glBindVertexArray(floorVao);
     GLuint floorBufferObject;
@@ -152,20 +150,6 @@ void createBufferObjects(GLuint boxVao, GLuint floorVao) {
     glBindBuffer(GL_ARRAY_BUFFER, floorBufferObject);
     glBufferData(GL_ARRAY_BUFFER, sizeof(floorVertices), floorVertices, GL_STATIC_DRAW);
 
-    glBindVertexArray(0);
-
-    glBindVertexArray(boxVao);
-    GLuint boxBufferObject;
-    glGenBuffers(1, &boxBufferObject);
-    glBindBuffer(GL_ARRAY_BUFFER, boxBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(boxVertices), boxVertices, GL_STATIC_DRAW);
-
-
-    glBindVertexArray(0);
-}
-
-void setupDefaultAttribPointers(GLuint shaderProgram, GLuint vao) {
-    glBindVertexArray(vao);
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
     glVertexAttribPointer(
@@ -187,6 +171,37 @@ void setupDefaultAttribPointers(GLuint shaderProgram, GLuint vao) {
             GL_FLOAT, GL_FALSE,
             8 * sizeof(float), (void *) (6 * sizeof(float)));
 
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
+    glBindVertexArray(boxVao);
+    GLuint boxBufferObject;
+    glGenBuffers(1, &boxBufferObject);
+    glBindBuffer(GL_ARRAY_BUFFER, boxBufferObject);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(boxVertices), boxVertices, GL_STATIC_DRAW);
+
+    posAttrib = glGetAttribLocation(shaderProgram, "position");
+    glEnableVertexAttribArray(posAttrib);
+    glVertexAttribPointer(
+            posAttrib, 3,
+            GL_FLOAT, GL_FALSE,
+            8 * sizeof(float), 0);
+
+    colAttrib = glGetAttribLocation(shaderProgram, "color");
+    glEnableVertexAttribArray(colAttrib);
+    glVertexAttribPointer(
+            colAttrib, 3,
+            GL_FLOAT, GL_FALSE,
+            8 * sizeof(float), (void *) (3 * sizeof(float)));
+
+    texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
+    glEnableVertexAttribArray(texAttrib);
+    glVertexAttribPointer(
+            texAttrib, 2,
+            GL_FLOAT, GL_FALSE,
+            8 * sizeof(float), (void *) (6 * sizeof(float)));
+
+    glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 }
 
