@@ -13,44 +13,74 @@
 
 
 //Calbacks
-void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+void keyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods);
+
+void cursorPosCallback(GLFWwindow* window, double xPos, double yPos);
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 
 
 //Initializing
 GLFWwindow* initGlfwWindow();
+
 void initGlew();
-void initCallbacks(GLFWwindow *window);
+
+void initCallbacks(GLFWwindow* window);
 
 //Shaders
-const GLchar *vertexSource =
+const GLchar* mainVertexSource =
         "#version 150 core\n"
 
-        "in vec3 position;"
-        "in vec3 color;"
-        "in vec2 texcoord;"
+                "in vec3 position;"
+                "in vec3 color;"
+                "in vec2 texcoord;"
 
-        "out vec3 Color;"
-        "out vec2 Texcoord;"
+                "out vec3 Color;"
+                "out vec2 Texcoord;"
 
-        "uniform mat4 transf;"
-        "uniform vec3 overrideColor;"
+                "uniform mat4 transf;"
+                "uniform vec3 overrideColor;"
 
-        "void main() {"
-        "	Texcoord = texcoord;"
-        "	Color = overrideColor * color;"
-        "	gl_Position = transf * vec4(position, 1.0);"
-        "}";
+                "void main() {"
+                "	Texcoord = texcoord;"
+                "	Color = overrideColor * color;"
+                "	gl_Position = transf * vec4(position, 1.0);"
+                "}";
 
-const GLchar *fragmentSource =
+const GLchar* mainFragmentSource =
         "#version 150 core\n"
-        "in vec3 Color;"
-        "in vec2 Texcoord;"
-        "out vec4 outColor;"
-        "uniform sampler2D texBox;"
-        "void main() {"
-        "		vec4 texColor = texture(texBox, Texcoord);"
-        "		outColor = vec4(Color, 1.0) * texColor;"
-        "}";
+                "in vec3 Color;"
+                "in vec2 Texcoord;"
+                "out vec4 outColor;"
+                "uniform sampler2D texBox;"
+                "void main() {"
+                "		vec4 texColor = texture(texBox, Texcoord);"
+                "		outColor = vec4(Color, 1.0) * texColor;"
+                "}";
+
+const GLchar* gridVertexSource =
+        "#version 150 core\n"
+
+                "in vec3 position;"
+                "in vec3 color;"
+
+                "out vec3 Color;"
+
+                "uniform mat4 transf;"
+                "uniform vec3 overrideColor;"
+
+                "void main() {"
+                "	Color = overrideColor * color;"
+                "	gl_Position = transf * vec4(position, 1.0);"
+                "}";
+
+const GLchar* gridFramentSource =
+        "#version 150 core\n"
+                "in vec3 Color;"
+                "out vec4 outColor;"
+                "void main() {"
+                "		outColor = vec4(Color, 1.0);"
+                "}";
 
 const GLfloat boxVertices[] = {
         -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
@@ -107,10 +137,11 @@ const GLfloat floorVertices[] = {
 
 
 GLuint createShader(GLenum shaderType, const GLchar* shaderSrcString);
+
 GLuint createShaderProgram(GLuint vertexShader, GLuint fragmentShader);
 
 void createBufferObjects(GLuint boxVao, GLuint floorVao, GLuint shaderProgram);
-void setupDefaultAttribPointers(GLuint shaderProgram, GLuint vao);
+void createBufferObject(GLuint vao, const GLfloat* vertices, GLuint shaderProgram);
 
 typedef struct TransformationMatrix {
     kmMat4 projection;
@@ -124,6 +155,6 @@ typedef struct TransformationMatrix {
 
 void setupTransformationMatrix(GLuint shaderProgram, TransformationMatrix* tm);
 
-void mainloop(GLFWwindow *window, TransformationMatrix tm, GLuint shaderProgram);
+void mainloop(GLFWwindow* window, TransformationMatrix tm, GLuint shaderProgram);
 
 #endif //MAIN_H

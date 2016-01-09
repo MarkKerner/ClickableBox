@@ -7,18 +7,18 @@ static const int Height = 600;
 
 
 int main() {
-    GLFWwindow *window = initGlfwWindow();
+
+    GLFWwindow* window = initGlfwWindow();
+
     initGlew();
 
-
-    GLuint vertexShader = createShader(GL_VERTEX_SHADER, vertexSource);
-    GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentSource);
+    GLuint vertexShader = createShader(GL_VERTEX_SHADER, mainVertexSource);
+    GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, mainFragmentSource);
 
     GLuint shaderProgram = createShaderProgram(vertexShader, fragmentShader);
 
     GLuint boxVao;
     GLuint floorVao;
-
     glGenVertexArrays(1, &floorVao);
     glGenVertexArrays(1, &boxVao);
     createBufferObjects(boxVao, floorVao, shaderProgram);
@@ -103,7 +103,7 @@ int main() {
     return 0;
 }
 
-GLFWwindow *initGlfwWindow() {
+GLFWwindow* initGlfwWindow() {
     glfwInit();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -112,7 +112,7 @@ GLFWwindow *initGlfwWindow() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    GLFWwindow *window = glfwCreateWindow(Width, Height, "OpenGL tutorial", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(Width, Height, "OpenGL tutorial", NULL, NULL);
     glfwMakeContextCurrent(window);
     initCallbacks(window);
     return window;
@@ -123,7 +123,7 @@ void initGlew() {
     glewInit();
 }
 
-GLuint createShader(GLenum shaderType, const GLchar *shaderSrcString) {
+GLuint createShader(GLenum shaderType, const GLchar* shaderSrcString) {
     GLuint shader = glCreateShader(shaderType);
     glShaderSource(shader, 1, &shaderSrcString, NULL);
     glCompileShader(shader);
@@ -142,11 +142,47 @@ GLuint createShaderProgram(GLuint vertexShader, GLuint fragmentShader) {
     return shaderProgram;
 }
 
+void createBufferObject(GLuint vao, const GLfloat* vertices, GLuint shaderProgram) {
+    glBindVertexArray(vao);
+    GLuint bufferObject;
+    glGenBuffers(1, &bufferObject);
+    printf("Bufferobject: %d", bufferObject);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferObject);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+    glEnableVertexAttribArray(posAttrib);
+    glVertexAttribPointer(
+            posAttrib, 3,
+            GL_FLOAT, GL_FALSE,
+            8 * sizeof(float), 0);
+
+    GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
+    glEnableVertexAttribArray(colAttrib);
+    glVertexAttribPointer(
+            colAttrib, 3,
+            GL_FLOAT, GL_FALSE,
+            8 * sizeof(float), (void*) (3 * sizeof(float)));
+
+    GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
+    glEnableVertexAttribArray(texAttrib);
+    glVertexAttribPointer(
+            texAttrib, 2,
+            GL_FLOAT, GL_FALSE,
+            8 * sizeof(float), (void*) (6 * sizeof(float)));
+
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+}
+
 void createBufferObjects(GLuint boxVao, GLuint floorVao, GLuint shaderProgram) {
 
+//    createBufferObject(floorVao, floorVertices, shaderProgram);
+//    createBufferObject(boxVao, boxVertices, shaderProgram);
     glBindVertexArray(floorVao);
     GLuint floorBufferObject;
     glGenBuffers(1, &floorBufferObject);
+    printf("Bufferobject: %d", floorBufferObject);
     glBindBuffer(GL_ARRAY_BUFFER, floorBufferObject);
     glBufferData(GL_ARRAY_BUFFER, sizeof(floorVertices), floorVertices, GL_STATIC_DRAW);
 
@@ -162,14 +198,14 @@ void createBufferObjects(GLuint boxVao, GLuint floorVao, GLuint shaderProgram) {
     glVertexAttribPointer(
             colAttrib, 3,
             GL_FLOAT, GL_FALSE,
-            8 * sizeof(float), (void *) (3 * sizeof(float)));
+            8 * sizeof(float), (void*) (3 * sizeof(float)));
 
     GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
     glEnableVertexAttribArray(texAttrib);
     glVertexAttribPointer(
             texAttrib, 2,
             GL_FLOAT, GL_FALSE,
-            8 * sizeof(float), (void *) (6 * sizeof(float)));
+            8 * sizeof(float), (void*) (6 * sizeof(float)));
 
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
@@ -177,6 +213,7 @@ void createBufferObjects(GLuint boxVao, GLuint floorVao, GLuint shaderProgram) {
     glBindVertexArray(boxVao);
     GLuint boxBufferObject;
     glGenBuffers(1, &boxBufferObject);
+    printf("Bufferobject: %d", boxBufferObject);
     glBindBuffer(GL_ARRAY_BUFFER, boxBufferObject);
     glBufferData(GL_ARRAY_BUFFER, sizeof(boxVertices), boxVertices, GL_STATIC_DRAW);
 
@@ -192,20 +229,20 @@ void createBufferObjects(GLuint boxVao, GLuint floorVao, GLuint shaderProgram) {
     glVertexAttribPointer(
             colAttrib, 3,
             GL_FLOAT, GL_FALSE,
-            8 * sizeof(float), (void *) (3 * sizeof(float)));
+            8 * sizeof(float), (void*) (3 * sizeof(float)));
 
     texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
     glEnableVertexAttribArray(texAttrib);
     glVertexAttribPointer(
             texAttrib, 2,
             GL_FLOAT, GL_FALSE,
-            8 * sizeof(float), (void *) (6 * sizeof(float)));
+            8 * sizeof(float), (void*) (6 * sizeof(float)));
 
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 }
 
-void setupTransformationMatrix(GLuint shaderProgram, TransformationMatrix *transformationMatrix) {
+void setupTransformationMatrix(GLuint shaderProgram, TransformationMatrix* transformationMatrix) {
     // Final matrix
     kmMat4 transf;
     kmMat4 projView;
@@ -239,12 +276,25 @@ void setupTransformationMatrix(GLuint shaderProgram, TransformationMatrix *trans
     transformationMatrix->transf = transf;
 }
 
-void initCallbacks(GLFWwindow *window) {
+void initCallbacks(GLFWwindow* window) {
     glfwSetKeyCallback(window, &keyCallback);
+    glfwSetCursorPosCallback(window, &cursorPosCallback);
+    glfwSetMouseButtonCallback(window, &mouseButtonCallback);
 }
 
-void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+}
+
+void cursorPosCallback(GLFWwindow* window, double xPos, double yPos) {
+    printf("x-pos: %f\n", xPos);
+    printf("y-pos: %f\n", yPos);
+}
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        printf("Left mouse clicked\n");
     }
 }
