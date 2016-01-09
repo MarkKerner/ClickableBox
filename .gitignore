@@ -1,6 +1,6 @@
 /obj
 executable
 
-.idea
-.idea/*
+/.idea
+/.idea/*
 
