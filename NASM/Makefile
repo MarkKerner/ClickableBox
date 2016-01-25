@@ -2,7 +2,7 @@ ifeq ($(OS),Windows_NT)
 	ASMFLG = win32 -g
 	LFLG = -mi386pe -subsystem console --discard-locals
 	LIBS = -LC:\MinGW\lib -lkernel32 -luser32
-	FGDB =
+	FGDB = -tui
 	OUT  = test.exe
 else
 	ASMFLG = -f elf32 -F dwarf -g

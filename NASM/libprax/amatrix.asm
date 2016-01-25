@@ -96,8 +96,8 @@ vec3_assign:
 ;;void mat4_scale(float pOut[16], const float x, const float y, const float z);
 mat4_scale:
 	push ebp
-	push ebx
 	mov ebp, esp
+	push ebx
 
 	mov edx, [ebp + 8] ;;*pOut
 
@@ -122,8 +122,8 @@ mat4_scale:
 	fld1
 	fstp dword[edx + 4*15]
 
-	mov esp, ebp
 	pop ebx
+	mov esp, ebp
 	pop ebp
 
 	ret
@@ -131,8 +131,8 @@ mat4_scale:
 ;;void mat4_translation(float pOut[16], const float x, const float y, const float z);
 mat4_translation:
 	push ebp
-	push ebx
 	mov ebp, esp
+	push ebx
 
 	mov edx, [ebp + 8] ;;*pOut
 
@@ -160,8 +160,8 @@ mat4_translation:
 	mov dword[edx + 4*13], ebx
 	mov dword[edx + 4*14], ecx
 
-	mov esp, ebp
 	pop ebx
+	mov esp, ebp
 	pop ebp
 
 	ret
