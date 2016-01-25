@@ -1,10 +1,10 @@
 OBJDIR  = obj
 SRCS  = $(wildcard *.c)
 OBJS  = $(SRCS:%.c=$(OBJDIR)/%.o)
-CFLAGS = -m32 -std=gnu99 -I headers/ -L libs/ -Wall -Wno-unused-result -g -O3
+CFLAGS = -m32 -std=gnu99 -I inc/ -L libs/ -Wall -Wno-unused-result -g -O3
 
 OUT	= executable
-LIBS 	= -lgsl -lkazmath
+LIBS 	= -lkazmath
 OPENGL 	= -lGLEW -lGL -lglfw -lSOIL -lm
 
 all: $(OUT)
