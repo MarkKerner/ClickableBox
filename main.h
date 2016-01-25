@@ -23,9 +23,9 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 //Initializing
 GLFWwindow* initGlfwWindow();
 
-void __stdcall initGlew();
+void initGlew();
 
-void __stdcall initCallbacks(GLFWwindow* window);
+void initCallbacks(GLFWwindow* window);
 
 //Shaders
 const GLchar* mainVertexSource =
