@@ -23,9 +23,9 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 //Initializing
 GLFWwindow* initGlfwWindow();
 
-void initGlew();
+void __stdcall initGlew();
 
-void initCallbacks(GLFWwindow* window);
+void __stdcall initCallbacks(GLFWwindow* window);
 
 //Shaders
 const GLchar* mainVertexSource =
@@ -74,7 +74,7 @@ const GLchar* gridVertexSource =
                 "	gl_Position = transf * vec4(position, 1.0);"
                 "}";
 
-const GLchar* gridFramentSource =
+const GLchar* gridFragmentSource =
         "#version 150 core\n"
                 "in vec3 Color;"
                 "out vec4 outColor;"
@@ -141,19 +141,22 @@ GLuint createShader(GLenum shaderType, const GLchar* shaderSrcString);
 GLuint createShaderProgram(GLuint vertexShader, GLuint fragmentShader);
 
 void createMainBufferObjects(GLuint boxVao, GLuint floorVao, GLuint mainShaderProgram);
-void createBufferObject(GLuint vao, const GLfloat* vertices, GLuint shaderProgram);
+
+void createMainBufferObject(GLuint vao, const GLfloat* vertices, GLint numVertices, GLuint shaderProgram);
+
+void createGridBufferObject(GLuint vao, const GLfloat* vertices, GLint numVertices, GLuint shaderProgram);
 
 typedef struct TransformationMatrix {
-    kmMat4 projection;
-    kmMat4 view;
-    //projection * view matrix multiplication
-    kmMat4 projView;
     kmMat4 model;
-    //projView * model matrix multiplication
+    kmMat4 view;
+    kmMat4 projection;
+    kmMat4 modelView;
     kmMat4 transf;
 } TransformationMatrix;
 
-void setupTransformationMatrix(GLuint shaderProgram, TransformationMatrix* tm);
+void setupTransformationMatrix(TransformationMatrix* tm);
+
+void calculateTransformationMatrix(TransformationMatrix* transformationMatrix);
 
 void mainloop(GLFWwindow* window, TransformationMatrix tm, GLuint shaderProgram);
 

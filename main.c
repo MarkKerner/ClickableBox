@@ -2,6 +2,8 @@
 #include "main.h"
 #include "matrix.h"
 
+#include <assert.h>
+
 static const int Width = 800;
 static const int Height = 600;
 
@@ -15,31 +17,40 @@ int main() {
     GLuint mainVertexShader = createShader(GL_VERTEX_SHADER, mainVertexSource);
     GLuint mainFragmentShader = createShader(GL_FRAGMENT_SHADER, mainFragmentSource);
 
-    GLuint shaderProgram = createShaderProgram(mainVertexShader, mainFragmentShader);
+    GLuint mainShaderProgram = createShaderProgram(mainVertexShader, mainFragmentShader);
 
     GLuint boxVao;
     GLuint floorVao;
     glGenVertexArrays(1, &floorVao);
     glGenVertexArrays(1, &boxVao);
-    createMainBufferObjects(boxVao, floorVao, shaderProgram);
-    //Setup uniform values
+    createMainBufferObjects(boxVao, floorVao, mainShaderProgram);
+
+
+    GLuint gridVertexShader = createShader(GL_VERTEX_SHADER, gridVertexSource);
+    GLuint gridFragmentShader = createShader(GL_FRAGMENT_SHADER, gridFragmentSource);
+
+    GLuint gridShaderProgram = createShaderProgram(gridVertexShader, gridFragmentShader);
+
+    GLuint gridBoxVao;
+    glGenVertexArrays(1, &gridBoxVao);
+
+    createGridBufferObject(gridBoxVao, boxVertices, sizeof(boxVertices), gridShaderProgram);
 
     //Create texture
-    loadBoxTexture(shaderProgram);
+    loadBoxTexture(mainShaderProgram);
 
-    //Enable depth and stencil test
+    //Enable depth test
     glEnable(GL_DEPTH_TEST);
 
     TransformationMatrix transformationMatrix;
-    setupTransformationMatrix(shaderProgram, &transformationMatrix);
+    setupTransformationMatrix(&transformationMatrix);
+
+    GLint uniTransf = glGetUniformLocation(mainShaderProgram, "transf");
+    GLint uniColor = glGetUniformLocation(mainShaderProgram, "overrideColor");
+    GLint uniTransfGrid = glGetUniformLocation(gridShaderProgram, "transf");
+    glUseProgram(0);
 
 
-    GLint uniTransf = glGetUniformLocation(shaderProgram, "transf");
-    GLint uniColor = glGetUniformLocation(shaderProgram, "overrideColor");
-
-
-    glEnable(GL_DEPTH_TEST);
-    printMat4(&transformationMatrix.transf);
     float currentTime;
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -50,16 +61,33 @@ int main() {
 
         currentTime = (float) glfwGetTime();
 
-        //Make the texture smaller and bigger
         kmMat4Identity(&transformationMatrix.model);
-
         kmMat4RotationZ(&transformationMatrix.model, currentTime * 0.2f * kmDegreesToRadians(180.0f));
-        kmMat4Multiply(&transformationMatrix.transf, &transformationMatrix.projView, &transformationMatrix.model);
+
+        calculateTransformationMatrix(&transformationMatrix);
+
+        glUseProgram(mainShaderProgram);
+
         glUniformMatrix4fv(uniTransf, 1, GL_FALSE, &transformationMatrix.transf.mat[0]);
+
+        //Start with drawing functions
 
         glBindVertexArray(boxVao);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
+
+        if (GL_TRUE) {
+            glUseProgram(gridShaderProgram);
+            glUniformMatrix4fv(uniTransfGrid, 1, GL_FALSE, &transformationMatrix.transf.mat[0]);
+            glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
+            glBindVertexArray(gridBoxVao);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glBindVertexArray(0);
+            glUseProgram(mainShaderProgram);
+        }
+
         //
         glEnable(GL_STENCIL_TEST);
 
@@ -84,8 +112,8 @@ int main() {
         kmMat4Scaling(&scaling, 1.0f, 1.0f, -1.0f);
         kmMat4Multiply(&transformationMatrix.model, &transformationMatrix.model, &transl);
         kmMat4Multiply(&transformationMatrix.model, &transformationMatrix.model, &scaling);
-        kmMat4Multiply(&transformationMatrix.transf, &transformationMatrix.projView, &transformationMatrix.model);
-        glUniformMatrix4fv(uniTransf, 1, GL_FALSE, &transformationMatrix.transf.mat[0]);
+        calculateTransformationMatrix(&transformationMatrix);
+        glUniformMatrix4fv(uniTransfGrid, 1, GL_FALSE, &transformationMatrix.transf.mat[0]);
         glUniform3f(uniColor, 0.3f, 0.3f, 0.3f);
 
         glBindVertexArray(boxVao);
@@ -100,6 +128,7 @@ int main() {
     }
 
     glfwTerminate();
+
     return 0;
 }
 
@@ -138,19 +167,17 @@ GLuint createShaderProgram(GLuint vertexShader, GLuint fragmentShader) {
     glAttachShader(shaderProgram, fragmentShader);
 //    glBindFragDataLocation(shaderProgram, 0, "outColor");
     glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
     return shaderProgram;
 }
 
-void createBufferObject(GLuint vao, const GLfloat* vertices, GLuint shaderProgram) {
+void createMainBufferObject(GLuint vao, const GLfloat* vertices, GLint numVertices, GLuint shaderProgram) {
 
     glUseProgram(shaderProgram);
     glBindVertexArray(vao);
     GLuint bufferObject;
     glGenBuffers(1, &bufferObject);
-    printf("Bufferobject: %d", bufferObject);
     glBindBuffer(GL_ARRAY_BUFFER, bufferObject);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, numVertices, vertices, GL_STATIC_DRAW);
 
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glVertexAttribPointer(
@@ -159,12 +186,18 @@ void createBufferObject(GLuint vao, const GLfloat* vertices, GLuint shaderProgra
             8 * sizeof(float), 0);
     glEnableVertexAttribArray(posAttrib);
 
+
+    assert(posAttrib != -1 && "posAttrib not found");
+
+
     GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
     glVertexAttribPointer(
             colAttrib, 3,
             GL_FLOAT, GL_FALSE,
             8 * sizeof(float), (void*) (3 * sizeof(float)));
     glEnableVertexAttribArray(colAttrib);
+
+    assert(colAttrib != -1 && "posAttrib not found");
 
     GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
     glVertexAttribPointer(
@@ -173,91 +206,68 @@ void createBufferObject(GLuint vao, const GLfloat* vertices, GLuint shaderProgra
             8 * sizeof(float), (void*) (6 * sizeof(float)));
     glEnableVertexAttribArray(texAttrib);
 
+
+    assert(texAttrib != -1 && "posAttrib not found");
+
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+}
+
+void createGridBufferObject(GLuint vao, const GLfloat* vertices, GLint numVertices, GLuint shaderProgram) {
+
+    glUseProgram(shaderProgram);
+    glBindVertexArray(vao);
+    GLuint bufferObject;
+    glGenBuffers(1, &bufferObject);
+    printf("Bufferobject: %d", bufferObject);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferObject);
+    glBufferData(GL_ARRAY_BUFFER, numVertices, vertices, GL_STATIC_DRAW);
+
+    GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+    glVertexAttribPointer(
+            posAttrib, 3,
+            GL_FLOAT, GL_FALSE,
+            8 * sizeof(float), 0);
+    glEnableVertexAttribArray(posAttrib);
+
+
+    assert(posAttrib != -1 && "posAttrib not found");
+
+
+    GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
+    glVertexAttribPointer(
+            colAttrib, 3,
+            GL_FLOAT, GL_FALSE,
+            8 * sizeof(float), (void*) (3 * sizeof(float)));
+    glEnableVertexAttribArray(colAttrib);
+
+    assert(colAttrib != -1 && "colAttrib not found");
+
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 }
 
 void createMainBufferObjects(GLuint boxVao, GLuint floorVao, GLuint mainShaderProgram) {
 
-    createBufferObject(floorVao, floorVertices, mainShaderProgram);
-    createBufferObject(boxVao, boxVertices, mainShaderProgram);
-
-//    glUseProgram(mainShaderProgram);
-//    glBindVertexArray(floorVao);
-//    GLuint floorBufferObject;
-//    glGenBuffers(1, &floorBufferObject);
-//    printf("Bufferobject: %d", floorBufferObject);
-//    glBindBuffer(GL_ARRAY_BUFFER, floorBufferObject);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(floorVertices), floorVertices, GL_STATIC_DRAW);
-//
-//    GLint posAttrib = glGetAttribLocation(mainShaderProgram, "position");
-//    glVertexAttribPointer(
-//            posAttrib, 3,
-//            GL_FLOAT, GL_FALSE,
-//            8 * sizeof(float), 0);
-//    glEnableVertexAttribArray(posAttrib);
-//
-//    GLint colAttrib = glGetAttribLocation(mainShaderProgram, "color");
-//    glVertexAttribPointer(
-//            colAttrib, 3,
-//            GL_FLOAT, GL_FALSE,
-//            8 * sizeof(float), (void*) (3 * sizeof(float)));
-//    glEnableVertexAttribArray(colAttrib);
-//
-//    GLint texAttrib = glGetAttribLocation(mainShaderProgram, "texcoord");
-//    glVertexAttribPointer(
-//            texAttrib, 2,
-//            GL_FLOAT, GL_FALSE,
-//            8 * sizeof(float), (void*) (6 * sizeof(float)));
-//    glEnableVertexAttribArray(texAttrib);
-//
-//    glEnableVertexAttribArray(0);
-//    glBindVertexArray(0);
-//
-//    glUseProgram(mainShaderProgram);
-//    glBindVertexArray(boxVao);
-//    GLuint boxBufferObject;
-//    glGenBuffers(1, &boxBufferObject);
-//    printf("Bufferobject: %d", boxBufferObject);
-//    glBindBuffer(GL_ARRAY_BUFFER, boxBufferObject);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(boxVertices), boxVertices, GL_STATIC_DRAW);
-//
-//    posAttrib = glGetAttribLocation(mainShaderProgram, "position");
-//    glVertexAttribPointer(
-//            posAttrib, 3,
-//            GL_FLOAT, GL_FALSE,
-//            8 * sizeof(float), 0);
-//    glEnableVertexAttribArray(posAttrib);
-//
-//    colAttrib = glGetAttribLocation(mainShaderProgram, "color");
-//    glVertexAttribPointer(
-//            colAttrib, 3,
-//            GL_FLOAT, GL_FALSE,
-//            8 * sizeof(float), (void*) (3 * sizeof(float)));
-//    glEnableVertexAttribArray(colAttrib);
-//
-//    texAttrib = glGetAttribLocation(mainShaderProgram, "texcoord");
-//    glVertexAttribPointer(
-//            texAttrib, 2,
-//            GL_FLOAT, GL_FALSE,
-//            8 * sizeof(float), (void*) (6 * sizeof(float)));
-//    glEnableVertexAttribArray(texAttrib);
-//
-//    glEnableVertexAttribArray(0);
-//    glBindVertexArray(0);
+    createMainBufferObject(floorVao, floorVertices, sizeof(floorVertices), mainShaderProgram);
+    createMainBufferObject(boxVao, boxVertices, sizeof(boxVertices), mainShaderProgram);
 }
 
-void setupTransformationMatrix(GLuint shaderProgram, TransformationMatrix* transformationMatrix) {
-    // Final matrix
-    kmMat4 transf;
-    kmMat4 projView;
+void calculateTransformationMatrix(TransformationMatrix* transformationMatrix) {
+
+    kmMat4Multiply(&transformationMatrix->modelView, &transformationMatrix->view, &transformationMatrix->model);
+    kmMat4Multiply(&transformationMatrix->transf, &transformationMatrix->projection, &transformationMatrix->modelView);
+}
+
+void setupTransformationMatrix(TransformationMatrix* transformationMatrix) {
+
     //Generate an identity matrix
     kmMat4 model;
     kmMat4Identity(&model);
 
     //Generate view matrix
     kmMat4 view;
-    GLfloat position = 2.5f;
+    GLfloat position = 3.0f;
     kmVec3 camera_position = {position, position, position};
     kmVec3 center_point = {0.0f, 0.0f, 0.0f};
     kmVec3 up_axis = {0.0f, 0.0f, 1.0f};
@@ -265,20 +275,13 @@ void setupTransformationMatrix(GLuint shaderProgram, TransformationMatrix* trans
 
     //Generate projection matrix
     kmMat4 proj;
-    kmMat4PerspectiveProjection(&proj, 45.0f, 800.0f / 600.0f, 1.0f, 10.0f);
+    kmMat4PerspectiveProjection(&proj, 45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
 
-
-    kmMat4Multiply(&projView, &proj, &view);
-    kmMat4Multiply(&transf, &projView, &model);
-
-    GLint uniTransf = glGetUniformLocation(shaderProgram, "transf");
-    glUniformMatrix4fv(uniTransf, 1, GL_FALSE, &transf.mat[0]);
-
-    transformationMatrix->projection = proj;
-    transformationMatrix->view = view;
-    transformationMatrix->projView = projView;
     transformationMatrix->model = model;
-    transformationMatrix->transf = transf;
+    transformationMatrix->view = view;
+    transformationMatrix->projection = proj;
+
+    calculateTransformationMatrix(transformationMatrix);
 }
 
 void initCallbacks(GLFWwindow* window) {
@@ -294,12 +297,26 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 }
 
 void cursorPosCallback(GLFWwindow* window, double xPos, double yPos) {
-    printf("x-pos: %f\n", xPos);
-    printf("y-pos: %f\n", yPos);
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         printf("Left mouse clicked\n");
+        double xf, yf;
+        glfwGetCursorPos(window, &xf, &yf);
+        int x, y;
+        x = (GLint) xf;
+        y = (GLint) yf;
+
+        GLbyte color[4];
+        GLfloat depth;
+        GLuint index;
+
+        glReadPixels(x, Height - y - 1, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, color);
+        glReadPixels(x, Height - y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+        glReadPixels(x, Height - y - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
+
+        printf("Clicked on pixel %d, %d, color %02hhx%02hhx%02hhx%02hhx, depth %f, stencil index %u\n",
+               x, y, color[0], color[1], color[2], color[3], depth, index);
     }
 }

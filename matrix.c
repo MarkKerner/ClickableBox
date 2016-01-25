@@ -8,7 +8,8 @@
  * Builds a translation matrix in the same way as gluLookAt()
  * the resulting matrix is stored in pOut. pOut is returned.
  */
-kmMat4 *lookAt(kmMat4 *pOut, const kmVec3 *pEye, const kmVec3 *pCenter, const kmVec3 *pUp) {
+kmMat4 *lookAt(kmMat4 *pOut, const kmVec3 *pEye, const kmVec3 *pCenter,
+               const kmVec3 *pUp) {
     kmVec3 f;
     kmVec3Subtract(&f, pCenter, pEye);
     kmVec3Normalize(&f, &f);
