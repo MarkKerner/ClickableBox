@@ -57,13 +57,13 @@ int main () {
 	mat4 matrix;
 
 	mat4_identity(matrix.mat);
-	printMat4(&matrix);
+	//printMat4(&matrix);
 
-	//mat4_scale(matrix.mat, 12.0f, 7.0f, 8.0f);
-	printMat4(&matrix);
+	mat4_scale(matrix.mat, 12.0f, 7.0f, 8.0f);
+	//printMat4(&matrix);
 
-	//mat4_translation(matrix.mat, 5.0f, 3.0f, 1.0f);
-	printMat4(&matrix);
+	mat4_translation(matrix.mat, 5.0f, 3.0f, 1.0f);
+	//printMat4(&matrix);
 
 	return 0;
 }

@@ -5,7 +5,7 @@
 ; @date		23.01.2016
 ; ----------------------------------------------------
 section .data
-	printd db 'eax: %d ,ecx: %d', 10, 0
+	printd db 'Print: %f', 10, 0
 	printvec3 db 'x: %d, y: %d, z: %d', 10, 0
 	zfone db 'ZF = 1\n', 0
 	zfzero db 'ZF = 0\n', 0
@@ -96,30 +96,30 @@ vec3_assign:
 ;;void mat4_scale(float pOut[16], const float x, const float y, const float z);
 mat4_scale:
 	push ebp
-	mov esp, ebp
+	mov ebp, esp
 
-	;;mov edx, [ebp + 8] ;;*pOut
+	mov edx, [ebp + 8] ;;*pOut
 
-	;;mov eax, [ebp + 12] ;;x
-	;;mov ebx, [ebp + 16] ;;y
-	;;mov ecx, [ebp + 20] ;;z
+	mov eax, [ebp + 12] ;;x
+	mov ebx, [ebp + 16] ;;y
+	mov ecx, [ebp + 20] ;;z
 
-	;;xorps xmm0, xmm0 ;; 0000
+	xorps xmm0, xmm0 ;; 0000
 
-	;; set all matrix values to 0.0
-	;;movups [edx + 4*0], xmm0 
-	;;movups [edx + 4*4], xmm0 
-	;;movups [edx + 4*8], xmm0 
-	;;movups [edx + 4*12], xmm0
+	;set all matrix values to 0.0
+	movups [edx + 4*0], xmm0 
+	movups [edx + 4*4], xmm0 
+	movups [edx + 4*8], xmm0 
+	movups [edx + 4*12], xmm0
 
-	;; set first 3 diagonal values to xyz
-	;;mov dword[edx + 4*0], eax
-	;;mov dword[edx + 4*5], ebx
-	;;mov dword[edx + 4*10], ecx
+	;set first 3 diagonal values to xyz
+	mov dword[edx + 4*0], eax
+	mov dword[edx + 4*5], ebx
+	mov dword[edx + 4*10], ecx
 
-	;; set last diagonal value to 1.0
-	;;fld1
-	;;fstp dword[edx + 4*15]
+	;set last diagonal value to 1.0
+	fld1
+	fstp dword[edx + 4*15]
 
 	mov esp, ebp
 	pop ebp
@@ -129,7 +129,7 @@ mat4_scale:
 ;;void mat4_translation(float pOut[16], const float x, const float y, const float z);
 mat4_translation:
 	push ebp
-	mov esp, ebp
+	mov ebp, esp
 
 	mov edx, [ebp + 8] ;;*pOut
 

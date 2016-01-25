@@ -1,11 +1,11 @@
 ifeq ($(OS),Windows_NT)
-	AFMT = win32 -g
+	ASMFLG = win32 -g
 	LFLG = -mi386pe -subsystem console --discard-locals
 	LIBS = -LC:\MinGW\lib -lkernel32 -luser32
 	FGDB =
 	OUT  = test.exe
 else
-	AFMT = -Wall -g -f elf32
+	ASMFLG = -f elf32 -F dwarf -g
 	LFLG = -m32
 	LIBS =
 	FGDB = -tui
@@ -28,14 +28,13 @@ gdb: all
 	gdb -q -x gdbinit $(FGDB) $(OUT)
 	
 # create the static library with >ar rcs out.lib in.o in.o
-# rebuild asm objs if sources or macro include changes
 makelib: $(LIBOBJS)
 	ar rcs $(LIBOUT) $(LIBOBJS)
 obj:
 	mkdir obj
 	
 obj/%.o: libprax/%.asm libprax/macros.inc
-	nasm -ilibprax/ $(AFMT) libprax/$*.asm -o obj/$*.o
+	nasm -ilibprax/ $(ASMFLG) libprax/$*.asm -o obj/$*.o
 obj/%.o: %.c
 	gcc $(CFLAGS) -c $*.c -o obj/$*.o
 	
