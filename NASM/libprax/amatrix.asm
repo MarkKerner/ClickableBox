@@ -96,6 +96,7 @@ vec3_assign:
 ;;void mat4_scale(float pOut[16], const float x, const float y, const float z);
 mat4_scale:
 	push ebp
+	push ebx
 	mov ebp, esp
 
 	mov edx, [ebp + 8] ;;*pOut
@@ -107,7 +108,7 @@ mat4_scale:
 	xorps xmm0, xmm0 ;; 0000
 
 	;set all matrix values to 0.0
-	movups [edx + 4*0], xmm0 
+	movups [edx], xmm0 
 	movups [edx + 4*4], xmm0 
 	movups [edx + 4*8], xmm0 
 	movups [edx + 4*12], xmm0
@@ -122,6 +123,7 @@ mat4_scale:
 	fstp dword[edx + 4*15]
 
 	mov esp, ebp
+	pop ebx
 	pop ebp
 
 	ret
@@ -129,6 +131,7 @@ mat4_scale:
 ;;void mat4_translation(float pOut[16], const float x, const float y, const float z);
 mat4_translation:
 	push ebp
+	push ebx
 	mov ebp, esp
 
 	mov edx, [ebp + 8] ;;*pOut
@@ -140,7 +143,7 @@ mat4_translation:
 	xorps xmm0, xmm0 ;; 0000
 
 	;; set all matrix values to 0.0
-	movups [edx + 4*0], xmm0 
+	movups [edx], xmm0 
 	movups [edx + 4*4], xmm0 
 	movups [edx + 4*8], xmm0 
 	movups [edx + 4*12], xmm0 
@@ -158,6 +161,7 @@ mat4_translation:
 	mov dword[edx + 4*14], ecx
 
 	mov esp, ebp
+	pop ebx
 	pop ebp
 
 	ret
