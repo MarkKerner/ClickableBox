@@ -30,7 +30,7 @@ void initCallbacks(GLFWwindow* window);
 
 //Shaders
 const GLchar* mainVertexSource =
-        "#version 150 core\n"
+        "#version 130 core\n"
 
                 "in vec3 position;"
                 "in vec3 color;"
@@ -49,7 +49,7 @@ const GLchar* mainVertexSource =
                 "}";
 
 const GLchar* mainFragmentSource =
-        "#version 150 core\n"
+        "#version 130 core\n"
                 "in vec3 Color;"
                 "in vec2 Texcoord;"
                 "out vec4 outColor;"
@@ -60,7 +60,7 @@ const GLchar* mainFragmentSource =
                 "}";
 
 const GLchar* gridVertexSource =
-        "#version 150 core\n"
+        "#version 130 core\n"
 
                 "in vec3 position;"
                 "in vec3 color;"
@@ -76,7 +76,7 @@ const GLchar* gridVertexSource =
                 "}";
 
 const GLchar* gridFragmentSource =
-        "#version 150 core\n"
+        "#version 130 core\n"
                 "in vec3 Color;"
                 "out vec4 outColor;"
                 "void main() {"
