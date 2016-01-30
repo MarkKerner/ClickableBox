@@ -3,6 +3,7 @@
 static const int Width = 800;
 static const int Height = 600;
 
+static int drawGrid = 1;
 
 int main() {
 
@@ -50,7 +51,6 @@ int main() {
     GLint uniTransfGrid = glGetUniformLocation(gridShaderProgram, "transf");
     glUseProgram(0);
 
-
     float currentTime;
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -76,7 +76,7 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
-        if (GL_TRUE) {
+        if (drawGrid) {
             glUseProgram(gridShaderProgram);
             glUniformMatrix4fv(uniTransfGrid, 1, GL_FALSE, &transformationMatrix.transf.mat[0]);
             glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
@@ -294,7 +294,6 @@ void setupTransformationMatrix(TransformationMatrix* transformationMatrix) {
 
 void initCallbacks(GLFWwindow* window) {
     glfwSetKeyCallback(window, &keyCallback);
-    glfwSetCursorPosCallback(window, &cursorPosCallback);
     glfwSetMouseButtonCallback(window, &mouseButtonCallback);
 }
 
@@ -305,7 +304,12 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        if (drawGrid > 0) {
+            drawGrid = 0;
+        } else {
+            drawGrid = 1;
+        }
         printf("Left mouse clicked\n");
         double xf, yf;
         glfwGetCursorPos(window, &xf, &yf);
