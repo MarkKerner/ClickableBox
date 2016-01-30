@@ -11,10 +11,9 @@ LIBOUT  = matlib.lib
 
 FGDB 	= -tui
 
-LFLG 	= -m32 -Iinc/ -Llibs/ 
+LFLG 	= -m32 -Iinc/
 OUT		= executable
-LIBS 	=
-OPENGL 	= -lGLEW -lGL -lglfw -lSOIL -lm
+LIBS 	= -lGLEW -lGL libs/libSOIL.a -lm libs/libglfw3-linux32.a
 
 
 
@@ -30,12 +29,13 @@ debug: all
 install:
 	sudo apt-get install libgl1-mesa-dev:i386
 	sudo apt-get install libglu1-mesa-dev:i386
+	sudo apt-get install libglew-dev:i386
 
 
 # OUT depends on OBJDIR, MATLIB, C-OBJS
 $(OUT): $(OBJDIR) $(LIBOBJS) $(COBJS)
 	@echo link $(OUT)
-	@gcc $(LFLG) -o $(OUT) $(LIBOBJS) $(COBJS) $(LIBS) $(OPENGL)
+	@gcc $(LFLG) -o $(OUT) $(LIBOBJS) $(COBJS) $(LIBS)
 
 
 $(OBJDIR)/%.o: matlib/%.asm
