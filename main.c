@@ -144,6 +144,11 @@ GLFWwindow* initGlfwWindow() {
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     GLFWwindow* window = glfwCreateWindow(Width, Height, "Rotating box", NULL, NULL);
+
+    if (window == NULL) {
+        return NULL;
+    }
+
     glfwMakeContextCurrent(window);
     initCallbacks(window);
     return window;
