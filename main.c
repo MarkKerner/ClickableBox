@@ -304,9 +304,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     }
 }
 
-void cursorPosCallback(GLFWwindow* window, double xPos, double yPos) {
-}
-
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         printf("Left mouse clicked\n");
