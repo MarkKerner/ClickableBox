@@ -7,8 +7,9 @@
 #include <SOIL.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <kazmath/kazmath.h>
+#include <assert.h>
 
+#include "matrix.h"
 #include "util.h"
 
 
@@ -147,11 +148,11 @@ void createMainBufferObject(GLuint vao, const GLfloat* vertices, GLint numVertic
 void createGridBufferObject(GLuint vao, const GLfloat* vertices, GLint numVertices, GLuint shaderProgram);
 
 typedef struct TransformationMatrix {
-    kmMat4 model;
-    kmMat4 view;
-    kmMat4 projection;
-    kmMat4 modelView;
-    kmMat4 transf;
+    mat4 model;
+    mat4 view;
+    mat4 projection;
+    mat4 modelView;
+    mat4 transf;
 } TransformationMatrix;
 
 void setupTransformationMatrix(TransformationMatrix* tm);

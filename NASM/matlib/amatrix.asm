@@ -20,16 +20,16 @@ struc vec3
 	.z resd 1
 endstruc
 
-global vec3_subtract
-global vec3_assign
+global avec3_subtract
+global avec3_assign
 
-global mat4_identity
-global mat4_scale
-global mat4_translation
+global amat4_identity
+global amat4_scale
+global amat4_translation
 extern printf
 
 ;void vec3_print(int x, int y, int z);
-vec3_print:
+avec3_print:
 	push ebp
 	mov ebp, esp
 
@@ -47,7 +47,7 @@ vec3_print:
 	ret
 
 ;void vec3_subtract(vec3* pOut, vec3* pV1, vec3* pV2);
-vec3_subtract:
+avec3_subtract:
 	push ebp
 	mov ebp, esp
 
@@ -72,7 +72,7 @@ vec3_subtract:
 	ret
 
 ;void vec3_assign(vec3* pOut, vec3* pV);
-vec3_assign:
+avec3_assign:
 	push ebp
 	mov ebp, esp
 
@@ -94,7 +94,7 @@ vec3_assign:
 	ret
 
 ;;void mat4_scale(float pOut[16], const float x, const float y, const float z);
-mat4_scale:
+amat4_scale:
 	push ebp
 	mov ebp, esp
 	push ebx
@@ -129,7 +129,7 @@ mat4_scale:
 	ret
 
 ;;void mat4_translation(float pOut[16], const float x, const float y, const float z);
-mat4_translation:
+amat4_translation:
 	push ebp
 	mov ebp, esp
 	push ebx
@@ -167,7 +167,7 @@ mat4_translation:
 	ret
 
 ;; void mat4_identity(float pOut[16])
-mat4_identity:
+amat4_identity:
 	push ebp
 	mov ebp, esp
 
@@ -192,9 +192,3 @@ mat4_identity:
 	pop ebp
 
 	ret
-
-
-
-
-
-

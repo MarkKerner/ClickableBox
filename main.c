@@ -1,8 +1,4 @@
-#include <GL/glew.h>
 #include "main.h"
-#include "matrix.h"
-
-#include <assert.h>
 
 static const int Width = 800;
 static const int Height = 600;
@@ -61,8 +57,8 @@ int main() {
 
         currentTime = (float) glfwGetTime();
 
-        kmMat4Identity(&transformationMatrix.model);
-        kmMat4RotationZ(&transformationMatrix.model, currentTime * 0.2f * kmDegreesToRadians(180.0f));
+        amat4_identity(&transformationMatrix.model);
+        mat4RotationZ(&transformationMatrix.model, currentTime * 0.2f * degreesToRadians(180.0f));
 
         calculateTransformationMatrix(&transformationMatrix);
 
@@ -107,11 +103,11 @@ int main() {
         glStencilMask(0x00);
         glDepthMask(GL_TRUE);
 
-        kmMat4 transl, scaling;
-        kmMat4Translation(&transl, 0.0f, 0.0f, -1.0f);
-        kmMat4Scaling(&scaling, 1.0f, 1.0f, -1.0f);
-        kmMat4Multiply(&transformationMatrix.model, &transformationMatrix.model, &transl);
-        kmMat4Multiply(&transformationMatrix.model, &transformationMatrix.model, &scaling);
+        mat4 transl, scaling;
+        amat4_translation(&transl, 0.0f, 0.0f, -1.0f);
+        amat4_scaling(&scaling, 1.0f, 1.0f, -1.0f);
+        mat4Multiply(&transformationMatrix.model, &transformationMatrix.model, &transl);
+        mat4Multiply(&transformationMatrix.model, &transformationMatrix.model, &scaling);
         calculateTransformationMatrix(&transformationMatrix);
         glUniformMatrix4fv(uniTransfGrid, 1, GL_FALSE, &transformationMatrix.transf.mat[0]);
         glUniform3f(uniColor, 0.3f, 0.3f, 0.3f);
@@ -255,27 +251,28 @@ void createMainBufferObjects(GLuint boxVao, GLuint floorVao, GLuint mainShaderPr
 
 void calculateTransformationMatrix(TransformationMatrix* transformationMatrix) {
 
-    kmMat4Multiply(&transformationMatrix->modelView, &transformationMatrix->view, &transformationMatrix->model);
-    kmMat4Multiply(&transformationMatrix->transf, &transformationMatrix->projection, &transformationMatrix->modelView);
+    mat4Multiply(&transformationMatrix->modelView, &transformationMatrix->view, &transformationMatrix->model);
+
+    mat4Multiply(&transformationMatrix->transf, &transformationMatrix->projection, &transformationMatrix->modelView);
 }
 
 void setupTransformationMatrix(TransformationMatrix* transformationMatrix) {
 
     //Generate an identity matrix
-    kmMat4 model;
-    kmMat4Identity(&model);
+    mat4 model;
+    amat4_identity(&model);
 
     //Generate view matrix
-    kmMat4 view;
+    mat4 view;
     GLfloat position = 3.0f;
-    kmVec3 camera_position = {position, position, position};
-    kmVec3 center_point = {0.0f, 0.0f, 0.0f};
-    kmVec3 up_axis = {0.0f, 0.0f, 1.0f};
+    vec3 camera_position = {position, position, position};
+    vec3 center_point = {0.0f, 0.0f, 0.0f};
+    vec3 up_axis = {0.0f, 0.0f, 1.0f};
     lookAt(&view, &camera_position, &center_point, &up_axis);
 
     //Generate projection matrix
-    kmMat4 proj;
-    kmMat4PerspectiveProjection(&proj, 45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+    mat4 proj;
+    mat4PerspectiveProjection(&proj, 45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
 
     transformationMatrix->model = model;
     transformationMatrix->view = view;

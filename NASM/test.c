@@ -33,40 +33,40 @@ void printVec3(const vec3* vec) {
 }
 
 
-extern void vec3_subtract(vec3* pOut, vec3* pM1, vec3* pM2);
-extern void vec3_assign(vec3* pM1, vec3* pM2);
+extern void avec3_subtract(vec3* pOut, vec3* pM1, vec3* pM2);
+extern void avec3_assign(vec3* pM1, vec3* pM2);
 
-extern void mat4_identity(float* mat);
-extern void mat4_scale(float* mat, float x, float y, float z);
-extern void mat4_translation(float* mat, float x, float y, float z);
+extern void amat4_identity(float* mat);
+extern void amat4_scale(float* mat, float x, float y, float z);
+extern void amat4_translation(float* mat, float x, float y, float z);
 
 
 int main () {
 	vec3 vector;
 	vec3 v1 = {4.0f, 52.0f, 8.0f};
 	vec3 v2 = {1.0f, 2.0f, 3.0f};
-	vec3_subtract(&vector, &v1, &v2);
+	avec3_subtract(&vector, &v1, &v2);
 	printVec3(&vector);
 
-	vec3_assign(&vector, &v1);
+	avec3_assign(&vector, &v1);
 	printVec3(&vector);
 
-	vec3_assign(&vector, &v2);
+	avec3_assign(&vector, &v2);
 	printVec3(&vector);
 
 	mat4 matrix;
 
-	mat4_identity(matrix.mat);
+	amat4_identity(matrix.mat);
 	printMat4(&matrix);
 
 	mat4 matrix2;
 	printf("mat4 addr = 0x%0x \n", matrix2.mat);
-	mat4_translation(matrix.mat, 1, 0, 0);
+	amat4_translation(matrix.mat, 1, 0, 0);
 
-	mat4_scale(matrix.mat, 12.0f, 7.0f, 8.0f);
+	amat4_scale(matrix.mat, 12.0f, 7.0f, 8.0f);
 	printMat4(&matrix);
 
-	mat4_translation(matrix.mat, 5.0f, 3.0f, 1.0f);
+	amat4_translation(matrix.mat, 5.0f, 3.0f, 1.0f);
 	printMat4(&matrix);
 
 	return 0;

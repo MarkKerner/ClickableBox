@@ -1,35 +1,47 @@
 OBJDIR  = obj
-SRCS  = $(wildcard *.c)
-OBJS  = $(SRCS:%.c=$(OBJDIR)/%.o)
-CFLAGS = -m32 -std=gnu99 -I inc/ -L libs/ -Wall -Wno-unused-result -g -O3
 
-OUT	= executable
-LIBS 	= -lkazmath
+CSRCS  	= $(wildcard *.c)
+COBJS  	= $(CSRCS:%.c=$(OBJDIR)/%.o)
+CFLAGS 	= -m32 -std=gnu99 -I inc/ -L libs/ -Wall -Wno-unused-result -O3 -g
+
+ASMFLG 	= -f elf32 -F dwarf -g
+LIBSRCS = $(wildcard matlib/*.asm)
+LIBOBJS = $(LIBSRCS:matlib/%.asm=$(OBJDIR)/%.o)
+LIBOUT  = matlib.lib
+
+FGDB 	= -tui
+
+LFLG 	= -m32
+OUT		= executable
+LIBS 	=
 OPENGL 	= -lGLEW -lGL -lglfw -lSOIL -lm
+
+
 
 all: $(OUT)
 	@echo
 clean:
-	@rm -rf ./$(OBJDIR) ./$(OUT)
+	rm -rf $(OBJDIR) $(OUT) $(LIBOUT)
 run: all
 	./$(OUT)
 debug: all
 	gdb -q -x gdbinit $(FGDB) $(OUT)
 
-ifeq ($(OS),Windows_NT)
-install:
-else
 install:
 	sudo apt-get install libgl1-mesa-dev:i386
 	sudo apt-get install libglu1-mesa-dev:i386
-	sudo apt-get install freeglut3-dev:i386
-endif
 
-	
-# OUT depends on OBJDIR, C-OBJS
-$(OUT): $(OBJDIR) $(OBJS)
+
+# OUT depends on OBJDIR, MATLIB, C-OBJS
+$(OUT): $(OBJDIR) $(LIBOBJS) $(COBJS)
 	@echo link $(OUT)
-	@gcc -m32 -o $(OUT) $(OBJDIR)/*.o $(LIBS) $(OPENGL)  
+	@gcc $(LFLG) -o $(OUT) $(LIBOBJS) $(COBJS) $(LIBS) $(OPENGL)
+
+
+$(OBJDIR)/%.o: matlib/%.asm
+	@echo nasm $(LIBSRCS)
+	@nasm -imatlib/ $(ASMFLG) $(LIBSRCS) -o $(LIBOBJS)
+
 $(OBJDIR)/%.o: %.c
 	@echo " gcc $*"
 	@gcc $(CFLAGS) -c $*.c -o $(OBJDIR)/$*.o -MD

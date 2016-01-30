@@ -9,32 +9,31 @@ else
 	LFLG = -m32
 	LIBS =
 	FGDB = -tui
-	OUT  = ./test
+	OUT  = test
 endif
 
-LIBSRCS = $(wildcard libprax/*.asm)
-LIBOBJS = $(LIBSRCS:libprax/%.asm=obj/%.o)
-LIBOUT  = libprax.lib
+LIBSRCS = $(wildcard matlib/*.asm)
+LIBOBJS = $(LIBSRCS:matlib/%.asm=obj/%.o)
+LIBOUT  = matlib.lib
 
 CSRCS  = $(wildcard *.c)
 COBJS  = $(CSRCS:%.c=obj/%.o)
 CFLAGS = -m32 -Wall -O3 -g
 
-#ld: -nostdlib
 all: obj makelib $(COBJS)
 	gcc $(LFLG) -o $(OUT) $(COBJS) $(LIBOUT) $(LIBS)
 	
 gdb: all
 	gdb -q -x gdbinit $(FGDB) $(OUT)
 	
-# create the static library with >ar rcs out.lib in.o in.o
+# create the static library with >ar rcs out.lib in.o
 makelib: $(LIBOBJS)
 	ar rcs $(LIBOUT) $(LIBOBJS)
 obj:
 	mkdir obj
 	
-obj/%.o: libprax/%.asm libprax/macros.inc
-	nasm -ilibprax/ $(ASMFLG) libprax/$*.asm -o obj/$*.o
+obj/%.o: matlib/%.asm
+	nasm -imatlib/ $(ASMFLG) matlib/$*.asm -o obj/$*.o
 obj/%.o: %.c
 	gcc $(CFLAGS) -c $*.c -o obj/$*.o
 	
@@ -42,4 +41,4 @@ clean:
 	rm -rf obj $(LIBOUT) $(OUT)
 
 run: all
-	$(OUT)
+	./$(OUT)
