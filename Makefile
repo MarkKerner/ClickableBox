@@ -2,7 +2,7 @@ OBJDIR  = obj
 
 CSRCS  	= $(wildcard *.c)
 COBJS  	= $(CSRCS:%.c=$(OBJDIR)/%.o)
-CFLAGS 	= -m32 -std=gnu99 -I inc/ -L libs/ -Wall -Wno-unused-result -O3 -g
+CFLAGS 	= -m32 -std=gnu99 -Iinc/ -Llibs/ -Wall -Wno-unused-result -O3 -g
 
 ASMFLG 	= -f elf32 -F dwarf -g
 LIBSRCS = $(wildcard matlib/*.asm)

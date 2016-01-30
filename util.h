@@ -5,8 +5,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 #include <stdio.h>
-#include <SOIL.h>
-#include <GL/glew.h>
+#include "inc/SOIL.h"
+#include "inc/glew.h"
 
 
 //Check if shader compiled successfully

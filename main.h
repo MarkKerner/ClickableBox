@@ -4,10 +4,10 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <SOIL.h>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <assert.h>
+#include "inc/SOIL.h"
+#include "inc/glew.h"
+#include "inc/glfw3.h"
+#include "assert.h"
 
 #include "matrix.h"
 #include "util.h"
