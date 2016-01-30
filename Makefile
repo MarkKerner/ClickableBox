@@ -13,7 +13,7 @@ FGDB 	= -tui
 
 LFLG 	= -m32 -Iinc/
 OUT		= executable
-LIBS 	= -lGLEW -lGL libs/libSOIL.a -lm libs/libglfw3-linux32.a
+LIBS 	= -lGLEW -lGL libs/libSOIL.a -lm -lglfw
 
 
 

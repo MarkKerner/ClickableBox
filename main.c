@@ -7,6 +7,10 @@ static const int Height = 600;
 int main() {
 
     GLFWwindow* window = initGlfwWindow();
+    if (window == NULL) {
+        printf("Window init failed");
+        return 1;
+    }
 
     initGlew();
 
@@ -129,7 +133,9 @@ int main() {
 }
 
 GLFWwindow* initGlfwWindow() {
-    glfwInit();
+    if (!glfwInit()) {
+        return NULL;
+    }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
@@ -137,7 +143,7 @@ GLFWwindow* initGlfwWindow() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    GLFWwindow* window = glfwCreateWindow(Width, Height, "OpenGL tutorial", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(Width, Height, "Rotating box", NULL, NULL);
     glfwMakeContextCurrent(window);
     initCallbacks(window);
     return window;
