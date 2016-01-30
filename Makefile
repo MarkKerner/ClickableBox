@@ -2,7 +2,7 @@ OBJDIR  = obj
 
 CSRCS  	= $(wildcard *.c)
 COBJS  	= $(CSRCS:%.c=$(OBJDIR)/%.o)
-CFLAGS 	= -m32 -std=gnu99 -Iinc/ -Llibs/ -Wall -Wno-unused-result -O3 -g
+CFLAGS 	= -m32 -std=gnu99 -Wall -Wno-unused-result -O3 -g
 
 ASMFLG 	= -f elf32 -F dwarf -g
 LIBSRCS = $(wildcard matlib/*.asm)
@@ -11,7 +11,7 @@ LIBOUT  = matlib.lib
 
 FGDB 	= -tui
 
-LFLG 	= -m32
+LFLG 	= -m32 -Iinc/ -Llibs/ 
 OUT		= executable
 LIBS 	=
 OPENGL 	= -lGLEW -lGL -lglfw -lSOIL -lm
