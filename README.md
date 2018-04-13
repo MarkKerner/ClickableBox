@@ -1,2 +1,2 @@
 # ClickableBox
-C/ASM lõputöö
+C/Assembly(NASM) course final project
